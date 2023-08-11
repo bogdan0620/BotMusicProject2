@@ -1,10 +1,9 @@
 import csv
 import database
 
-user = database.get_all_music()
-
 
 def get_csv_file():
+    user = database.get_all_music()
     with open('Catalog.csv', 'w', encoding='utf-8-sig') as csv_file:
         csv_writer = csv.writer(csv_file, delimiter=';', lineterminator='\r', quotechar='|')
         csv_writer.writerow(['Номер:', 'id в телеграме:', 'Название трека:', 'Исполнитель:'])
@@ -12,10 +11,8 @@ def get_csv_file():
         return
 
 
-user1 = database.get_users()
-
-
 def get_csv_users():
+    user1 = database.get_users()
     with open("users.csv", "w", encoding='utf-8-sig') as csv_file:
         csv_writer = csv.writer(csv_file, delimiter=';', lineterminator='\r', quotechar='|')
         csv_writer.writerow(['Номер:', 'id в телеграме:', 'Имя:', 'Возраст:'])

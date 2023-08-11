@@ -7,7 +7,6 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.types import ReplyKeyboardRemove
 import database
 import csv_file
-# from background import keep_alive
 
 bot = Bot(TOKEN)
 dp = Dispatcher(bot, storage=MemoryStorage())
@@ -34,7 +33,7 @@ async def callback_list(call):
     all_music = database.get_all_music()
     users = {1097387511: {'pr_count': 1}}
     # Если пользователь нажал на +
-    print(call.data)
+    # print(call.data)
     if call.data == 'next':
         actual_count = users[user_id]['pr_count']
         print(actual_count)
@@ -51,8 +50,10 @@ async def callback_list(call):
     # Если пользователь нажал на -
     elif call.data == 'back':
         actual_count = users[user_id]['pr_count']
+        print(actual_count)
 
-        users[user_id]['pr_count'] -= 1
+        users[user_id]['pr_count'] -= 0
+        print(actual_count)
 
         # Меняем значение кнопки
         await bot.edit_message_reply_markup(chat_id=user_id,
@@ -72,10 +73,13 @@ async def callback_list(call):
 
     await bot.answer_callback_query(call.id, f'Номер трека: {call.data}')
     music = database.get_music_num(call.data)
-    for i in music:
-        result1 = f'{i[1]}'
-        result2 = f'{i[0]}. {i[3]} – {i[2]}'
-    await bot.send_audio(call.from_user.id, audio=result1, caption=result2)
+    if music:
+        for i in music:
+            result1 = f'{i[1]}'
+            result2 = f'{i[0]}. {i[3]} – {i[2]}'
+        await bot.send_audio(call.from_user.id, audio=result1, caption=result2)
+
+    await bot.answer_callback_query(call.id)
 
 
 @dp.message_handler(state=GetAge.getting_age, content_types=['text'])
@@ -103,12 +107,12 @@ async def age_user(message, state=GetAge.getting_age):
 async def cmd_catalog(message):
     if message.from_user.id in tokens.TG:
         csv_file.get_csv_file()
-        await message.answer_document(open(('Catalog.csv'), 'rb'))
+        await message.answer_document(open('Catalog.csv', 'rb'))
         await message.answer('Введите для поиска', reply_markup=buttons.admin_kb())
 
     else:
         csv_file.get_csv_file()
-        await message.answer_document(open(('Catalog.csv'), 'rb'))
+        await message.answer_document(open('Catalog.csv', 'rb'))
         await message.answer('Введите для поиска', reply_markup=buttons.admin_kb())
 
 
@@ -175,7 +179,7 @@ async def add_singer_music(message, state=Music_admin.getting_singer_music):
 async def list_users(message):
     if message.from_user.id in tokens.TG:
         csv_file.get_csv_users()
-        await message.answer_document(open(('users.csv'), 'rb', encoding='utf-8-sig'))
+        await message.answer_document(open('users.csv', 'rb'))
 
     else:
         await message.answer('Вы не являетесь администратором 🔒т\nВведите для поиска', reply_markup=buttons.menu_kb())
@@ -250,13 +254,12 @@ async def search_out(message):
 async def answer_not(message):
     await message.answer('Введите для поиска', reply_markup=buttons.menu_kb())\
 
+
 @dp.message_handler(content_types=types.ContentType.ANY)
 async def unknown_message(message):
     await message.answer('Введите для поиска', reply_markup=buttons.menu_kb())
 
 
-
-# keep_alive()
 
 if __name__ == '__main__':
     executor.start_polling(dp, skip_updates=True)
